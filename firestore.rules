@@ -1,0 +1,146 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'email'])
+        && data.keys().hasOnly(['uid', 'email', 'displayName', 'outlookEmail', 'createdAt', 'updatedAt'])
+        && data.uid is string && data.uid.size() > 0 && data.uid.size() <= 128
+        && data.email is string && data.email.size() > 0 && data.email.size() <= 256
+        && (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 128))
+        && (!('outlookEmail' in data) || (data.outlookEmail is string && data.outlookEmail.size() <= 256))
+        && (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 128))
+        && (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 128));
+    }
+
+    function isValidTask(data) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'priority', 'completed', 'createdAt'])
+        && data.keys().hasOnly(['id', 'userId', 'title', 'description', 'priority', 'category', 'completed', 'createdAt', 'completedAt', 'agentExecutionResult', 'outputLog', 'deliverableId'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 64
+        && data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 256
+        && (data.priority in ['alta', 'media', 'baja'])
+        && data.completed is bool
+        && data.createdAt is string && data.createdAt.size() <= 64
+        && (!('description' in data) || (data.description is string && data.description.size() <= 2048))
+        && (!('category' in data) || (data.category is string && data.category.size() <= 64))
+        && (!('completedAt' in data) || (data.completedAt is string && data.completedAt.size() <= 64))
+        && (!('agentExecutionResult' in data) || (data.agentExecutionResult is string && data.agentExecutionResult.size() <= 4096))
+        && (!('outputLog' in data) || (data.outputLog is string && data.outputLog.size() <= 4096))
+        && (!('deliverableId' in data) || (data.deliverableId is string && data.deliverableId.size() <= 64));
+    }
+
+    function isValidEmailItem(data) {
+      return data.keys().hasAll(['id', 'userId', 'senderEmail', 'subject', 'read', 'priority'])
+        && data.keys().hasOnly(['id', 'userId', 'sender', 'senderEmail', 'subject', 'snippet', 'body', 'date', 'read', 'starred', 'priority', 'category', 'draftReply', 'replySent', 'matchedRuleId', 'usedTemplateId'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 64
+        && data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128
+        && data.senderEmail is string && data.senderEmail.size() > 0 && data.senderEmail.size() <= 256
+        && data.subject is string && data.subject.size() <= 256
+        && data.read is bool
+        && (data.priority in ['alta', 'media', 'baja'])
+        && (!('sender' in data) || (data.sender is string && data.sender.size() <= 128))
+        && (!('snippet' in data) || (data.snippet is string && data.snippet.size() <= 512))
+        && (!('body' in data) || (data.body is string && data.body.size() <= 8192))
+        && (!('date' in data) || (data.date is string && data.date.size() <= 64))
+        && (!('starred' in data) || data.starred is bool)
+        && (!('category' in data) || (data.category is string && data.category.size() <= 64))
+        && (!('draftReply' in data) || (data.draftReply is string && data.draftReply.size() <= 4096))
+        && (!('replySent' in data) || data.replySent is bool)
+        && (!('matchedRuleId' in data) || (data.matchedRuleId is string && data.matchedRuleId.size() <= 64))
+        && (!('usedTemplateId' in data) || (data.usedTemplateId is string && data.usedTemplateId.size() <= 64));
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'status', 'progress'])
+        && data.keys().hasOnly(['id', 'userId', 'title', 'description', 'category', 'status', 'progress', 'tasks', 'deliverables', 'createdAt', 'updatedAt'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 64
+        && data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 256
+        && (data.status in ['planning', 'in_progress', 'completed'])
+        && data.progress is number && data.progress >= 0 && data.progress <= 100
+        && (!('description' in data) || (data.description is string && data.description.size() <= 2048))
+        && (!('category' in data) || (data.category is string && data.category.size() <= 64))
+        && (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 64))
+        && (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 64))
+        && (!('tasks' in data) || (data.tasks is list && data.tasks.size() <= 50))
+        && (!('deliverables' in data) || (data.deliverables is list && data.deliverables.size() <= 30));
+    }
+
+    function isValidSecurityPolicyConfig(data) {
+      return data.keys().hasAll(['userId', 'strictFolderIsolation', 'blockSystemDirectories'])
+        && data.keys().hasOnly(['userId', 'strictFolderIsolation', 'blockSystemDirectories', 'requireConfirmationOnWrite', 'allowedFolders', 'allowedFileTypes', 'updatedAt'])
+        && data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128
+        && data.strictFolderIsolation is bool
+        && data.blockSystemDirectories is bool
+        && (!('requireConfirmationOnWrite' in data) || data.requireConfirmationOnWrite is bool)
+        && (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 64))
+        && (!('allowedFolders' in data) || (data.allowedFolders is list && data.allowedFolders.size() <= 20))
+        && (!('allowedFileTypes' in data) || (data.allowedFileTypes is list && data.allowedFileTypes.size() <= 30));
+    }
+
+    // Match /users/{userId}
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming()) && incoming().uid == userId;
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming()) && incoming().uid == existing().uid;
+      allow delete: if isOwner(userId);
+
+      // Tasks subcollection
+      match /tasks/{taskId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(taskId) && isValidTask(incoming()) && incoming().userId == userId;
+        allow update: if isOwner(userId) && isValidId(taskId) && isValidTask(incoming()) && incoming().userId == existing().userId;
+        allow delete: if isOwner(userId) && isValidId(taskId);
+      }
+
+      // Emails subcollection (Outlook sync & inbox)
+      match /emails/{emailId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(emailId) && isValidEmailItem(incoming()) && incoming().userId == userId;
+        allow update: if isOwner(userId) && isValidId(emailId) && isValidEmailItem(incoming()) && incoming().userId == existing().userId;
+        allow delete: if isOwner(userId) && isValidId(emailId);
+      }
+
+      // Projects subcollection
+      match /projects/{projectId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(projectId) && isValidProject(incoming()) && incoming().userId == userId;
+        allow update: if isOwner(userId) && isValidId(projectId) && isValidProject(incoming()) && incoming().userId == existing().userId;
+        allow delete: if isOwner(userId) && isValidId(projectId);
+      }
+
+      // Security policy config
+      match /securityPolicy/{docId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidId(docId) && isValidSecurityPolicyConfig(incoming()) && incoming().userId == userId;
+        allow delete: if isOwner(userId) && isValidId(docId);
+      }
+    }
+  }
+}

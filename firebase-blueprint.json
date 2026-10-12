@@ -1,0 +1,276 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile and Outlook account binding metadata",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique identifier of the user",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user",
+          "maxLength": 256
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the user",
+          "maxLength": 128
+        },
+        "outlookEmail": {
+          "type": "string",
+          "description": "Connected Outlook email address (e.g. a01425929@tec.mx)",
+          "maxLength": 256
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp in ISO format"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp in ISO format"
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Pending task with assigned priority for autonomous processing",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique task ID",
+          "maxLength": 64
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID",
+          "maxLength": 128
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the task",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description and execution instructions",
+          "maxLength": 2048
+        },
+        "priority": {
+          "type": "string",
+          "description": "Task priority level",
+          "enum": ["alta", "media", "baja"]
+        },
+        "category": {
+          "type": "string",
+          "description": "Task category",
+          "maxLength": 64
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Whether the task is completed"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Task creation date"
+        },
+        "completedAt": {
+          "type": "string",
+          "description": "Task completion date"
+        },
+        "agentExecutionResult": {
+          "type": "string",
+          "description": "Agent execution summary or deliverable status",
+          "maxLength": 4096
+        },
+        "outputLog": {
+          "type": "string",
+          "description": "Terminal execution logs or deliverable paths",
+          "maxLength": 4096
+        }
+      },
+      "required": ["id", "userId", "title", "priority", "completed", "createdAt"]
+    },
+    "EmailItem": {
+      "title": "EmailItem",
+      "description": "Synced email from Outlook or inbox provider with triage classification and draft response",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique email ID",
+          "maxLength": 64
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID",
+          "maxLength": 128
+        },
+        "sender": {
+          "type": "string",
+          "description": "Sender display name",
+          "maxLength": 128
+        },
+        "senderEmail": {
+          "type": "string",
+          "description": "Sender email address",
+          "maxLength": 256
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject line of the email",
+          "maxLength": 256
+        },
+        "snippet": {
+          "type": "string",
+          "description": "Short excerpt snippet",
+          "maxLength": 512
+        },
+        "body": {
+          "type": "string",
+          "description": "Full email message body",
+          "maxLength": 8192
+        },
+        "date": {
+          "type": "string",
+          "description": "Receipt date and time",
+          "maxLength": 64
+        },
+        "read": {
+          "type": "boolean",
+          "description": "Read flag"
+        },
+        "starred": {
+          "type": "boolean",
+          "description": "Starred flag"
+        },
+        "priority": {
+          "type": "string",
+          "description": "Priority assigned by user or agent rule",
+          "enum": ["alta", "media", "baja"]
+        },
+        "category": {
+          "type": "string",
+          "description": "Classification category",
+          "maxLength": 64
+        },
+        "draftReply": {
+          "type": "string",
+          "description": "Generated or user-edited draft response",
+          "maxLength": 4096
+        },
+        "replySent": {
+          "type": "boolean",
+          "description": "Whether reply has been sent"
+        }
+      },
+      "required": ["id", "userId", "senderEmail", "subject", "read", "priority"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Project workspace containing task breakdown and deliverables",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Project ID",
+          "maxLength": 64
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID",
+          "maxLength": 128
+        },
+        "title": {
+          "type": "string",
+          "description": "Project title",
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "description": "Project description",
+          "maxLength": 2048
+        },
+        "category": {
+          "type": "string",
+          "description": "Project domain category",
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "description": "Project execution status",
+          "enum": ["planning", "in_progress", "completed"]
+        },
+        "progress": {
+          "type": "number",
+          "description": "Completion percentage (0 to 100)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last updated timestamp"
+        }
+      },
+      "required": ["id", "userId", "title", "status", "progress"]
+    },
+    "SecurityPolicyConfig": {
+      "title": "SecurityPolicyConfig",
+      "description": "System access control and folder/file type whitelist settings",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner user ID",
+          "maxLength": 128
+        },
+        "strictFolderIsolation": {
+          "type": "boolean",
+          "description": "Enforce strict isolation to Documentos, Proyectos, Descargas"
+        },
+        "blockSystemDirectories": {
+          "type": "boolean",
+          "description": "Block root and OS system directories"
+        },
+        "requireConfirmationOnWrite": {
+          "type": "boolean",
+          "description": "Require prompt confirmation before writes"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last policy update timestamp"
+        }
+      },
+      "required": ["userId", "strictFolderIsolation", "blockSystemDirectories"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile information"
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "User pending tasks with priority and execution status"
+    },
+    "/users/{userId}/emails/{emailId}": {
+      "schema": "EmailItem",
+      "description": "Outlook and incoming email messages synced for the user"
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": "Project",
+      "description": "User projects, jobs and deliverables"
+    },
+    "/users/{userId}/securityPolicy/config": {
+      "schema": "SecurityPolicyConfig",
+      "description": "Security policy permissions and folder access configuration"
+    }
+  }
+}

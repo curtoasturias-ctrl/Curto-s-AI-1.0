@@ -1,0 +1,8 @@
+{
+  "name": "OmniAgent AI - Agente Autónomo de Sistema, Correo y Proyectos",
+  "description": "Agente autónomo integral con control de ordenador, gestor y lector inteligente de correos, planificador y ejecutor de proyectos, terminal interactiva y bridge local.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
